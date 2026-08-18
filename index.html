@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Pilze sortieren</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+      background: #f6f8f6;
+      color: #222;
+      touch-action: pan-y;
+    }
+
+    .seite {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      margin-bottom: 5px;
+    }
+
+    .anweisung {
+      margin-top: 0;
+      margin-bottom: 15px;
+    }
+
+    #fortschritt {
+      font-weight: bold;
+      margin-bottom: 15px;
+    }
+
+    /* Bereich für das aktuell zu sortierende Bild */
+    .aktuelles-bild-bereich {
+      min-height: 300px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    #aktuellesBild {
+      max-width: 420px;
+      max-height: 280px;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      border-radius: 10px;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.18);
+      background: white;
+      cursor: grab;
+      user-select: none;
+      -webkit-user-drag: none;
+      touch-action: none;
+    }
+
+    #aktuellesBild:active {
+      cursor: grabbing;
+    }
+
+    /* Gruppen */
+    .gruppen {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .gruppe {
+      min-height: 190px;
+      background: #eef5ec;
+      border: 2px solid #76978c;
+      border-radius: 10px;
+      padding: 10px;
+      transition: 0.15s;
+    }
+
+    .gruppe.hover {
+      outline: 4px solid #315f52;
+      transform: scale(1.01);
+    }
+
+    .gruppe h2 {
+      margin: 0 0 8px 0;
+      font-size: 19px;
+      color: #315f52;
+    }
+
+    .thumbnails {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .thumbnail {
+      width: 72px;
+      height: 72px;
+      object-fit: cover;
+      border-radius: 6px;
+      border: 1px solid #aaa;
+      background: white;
+    }
+
+    .buttons {
+      margin-top: 18px;
+      display: flex;
+      gap: 10px;
+    }
+
+    button {
+      padding: 10px 16px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: 1px solid #777;
+      background: white;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      opacity: 0.4;
+      cursor: default;
+    }
+
+    #fertig {
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+      margin: 40px 0;
+      display: none;
+    }
+
+    /* Das Bild, das während des Ziehens dem Finger folgt */
+    .drag-kopie {
+      position: fixed;
+      z-index: 9999;
+      pointer-events: none;
+      max-width: 220px;
+      max-height: 180px;
+      object-fit: contain;
+      opacity: 0.9;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+      border-radius: 8px;
+    }
+
+    @media (max-width: 800px) {
+      body {
+        padding: 10px;
+      }
+
+      .gruppen {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      #aktuellesBild {
+        max-width: 90vw;
+        max-height: 260px;
+      }
+
+      .thumbnail {
+        width: 60px;
+        height: 60px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="seite">
+
+  <h1>Pilze sortieren</h1>
+
+  <p class="anweisung">
+    Schau dir das Pilzbild genau an und ziehe es in die Gruppe,
+    zu der es deiner Meinung nach gehört.
+  </p>
+
+  <div id="fortschritt"></div>
+
+  <div class="aktuelles-bild-bereich">
+    <img id="aktuellesBild" alt="Pilzbild zum Sortieren">
+  </div>
+
+  <div id="fertig">
+    Fertig! 🎉 Schau dir eure Gruppen noch einmal genau an.
+  </div>
+
+  <div class="gruppen">
+
+    <div class="gruppe" data-gruppe="1">
+      <h2>Gruppe 1</h2>
+      <div class="thumbnails"></div>
+    </div>
+
+    <div class="gruppe" data-gruppe="2">
+      <h2>Gruppe 2</h2>
+      <div class="thumbnails"></div>
+    </div>
+
+    <div class="gruppe" data-gruppe="3">
+      <h2>Gruppe 3</h2>
+      <div class="thumbnails"></div>
+    </div>
+
+  </div>
+
+  <div class="buttons">
+    <button id="zurueck" disabled>↶ Rückgängig</button>
+  </div>
+
+</div>
+
+<script>
+
+  /* Deine bereits auf GitHub liegenden Testbilder */
+  const bilder = [
+    "/pilzbilder/1.jpg",
+    "/pilzbilder/14.jpg",
+    "/pilzbilder/20.jpg",
+    "/pilzbilder/27.jpg",
+    "/pilzbilder/37.jpg"
+  ];
+
+  let aktuellerIndex = 0;
+  let verlauf = [];
+
+  const bild = document.getElementById("aktuellesBild");
+  const fortschritt = document.getElementById("fortschritt");
+  const fertig = document.getElementById("fertig");
+  const zurueck = document.getElementById("zurueck");
+  const gruppen = document.querySelectorAll(".gruppe");
+
+  function zeigeAktuellesBild() {
+
+    if (aktuellerIndex >= bilder.length) {
+
+      bild.style.display = "none";
+      fortschritt.textContent = `${bilder.length} von ${bilder.length} Bildern sortiert`;
+      fertig.style.display = "block";
+
+      return;
+    }
+
+    bild.style.display = "block";
+    fertig.style.display = "none";
+
+    bild.src = bilder[aktuellerIndex];
+
+    fortschritt.textContent =
+      `Bild ${aktuellerIndex + 1} von ${bilder.length}`;
+  }
+
+
+  function sortiereInGruppe(gruppenNummer) {
+
+    if (aktuellerIndex >= bilder.length) return;
+
+    const bildUrl = bilder[aktuellerIndex];
+
+    const ziel = document.querySelector(
+      `.gruppe[data-gruppe="${gruppenNummer}"] .thumbnails`
+    );
+
+    const thumbnail = document.createElement("img");
+
+    thumbnail.src = bildUrl;
+    thumbnail.className = "thumbnail";
+    thumbnail.dataset.index = aktuellerIndex;
+
+    ziel.appendChild(thumbnail);
+
+    verlauf.push({
+      index: aktuellerIndex,
+      gruppe: gruppenNummer,
+      element: thumbnail
+    });
+
+    aktuellerIndex++;
+
+    zurueck.disabled = false;
+
+    zeigeAktuellesBild();
+  }
+
+
+  /* -----------------------------
+     TOUCH + MAUS DRAG & DROP
+     ----------------------------- */
+
+  let dragKopie = null;
+
+  bild.addEventListener("pointerdown", function(event) {
+
+    if (aktuellerIndex >= bilder.length) return;
+
+    event.preventDefault();
+
+    bild.setPointerCapture(event.pointerId);
+
+    dragKopie = document.createElement("img");
+    dragKopie.src = bild.src;
+    dragKopie.className = "drag-kopie";
+
+    document.body.appendChild(dragKopie);
+
+    bewegeDragBild(event.clientX, event.clientY);
+  });
+
+
+  bild.addEventListener("pointermove", function(event) {
+
+    if (!dragKopie) return;
+
+    event.preventDefault();
+
+    bewegeDragBild(event.clientX, event.clientY);
+
+    gruppen.forEach(gruppe => gruppe.classList.remove("hover"));
+
+    const elementDarunter =
+      document.elementFromPoint(event.clientX, event.clientY);
+
+    const gruppeDarunter =
+      elementDarunter?.closest(".gruppe");
+
+    if (gruppeDarunter) {
+      gruppeDarunter.classList.add("hover");
+    }
+  });
+
+
+  bild.addEventListener("pointerup", function(event) {
+
+    if (!dragKopie) return;
+
+    event.preventDefault();
+
+    dragKopie.remove();
+    dragKopie = null;
+
+    gruppen.forEach(gruppe => gruppe.classList.remove("hover"));
+
+    const elementDarunter =
+      document.elementFromPoint(event.clientX, event.clientY);
+
+    const gruppeDarunter =
+      elementDarunter?.closest(".gruppe");
+
+    if (gruppeDarunter) {
+      sortiereInGruppe(gruppeDarunter.dataset.gruppe);
+    }
+  });
+
+
+  function bewegeDragBild(x, y) {
+
+    if (!dragKopie) return;
+
+    dragKopie.style.left = `${x}px`;
+    dragKopie.style.top = `${y}px`;
+  }
+
+
+  /* Rückgängig */
+
+  zurueck.addEventListener("click", function() {
+
+    if (verlauf.length === 0) return;
+
+    const letzteAktion = verlauf.pop();
+
+    letzteAktion.element.remove();
+
+    aktuellerIndex = letzteAktion.index;
+
+    zeigeAktuellesBild();
+
+    if (verlauf.length === 0) {
+      zurueck.disabled = true;
+    }
+  });
+
+
+  zeigeAktuellesBild();
+
+</script>
+
+</body>
+</html>
