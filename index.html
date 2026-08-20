@@ -801,161 +801,144 @@
     }
   );
 
+/* =====================================================
+   THUMBNAILS:
+   TAP = GROSSANSICHT
+   DRAG = UMSORTIEREN
+   ===================================================== */
 
-  /* =====================================================
-     THUMBNAILS:
-     TAP = GROSSANSICHT
-     DRAG = UMSORTIEREN
-     ===================================================== */
+let aktiverThumbnailDrag = null;
 
-  function aktiviereThumbnail(thumbnail) {
-
-    let startX = 0;
-    let startY = 0;
-
-    let thumbnailDragKopie = null;
-
-    let wurdeGezogen = false;
+function entferneAlleDragKopien() {
+  document
+    .querySelectorAll(".drag-kopie")
+    .forEach(element => element.remove());
+}
 
 
-    thumbnail.addEventListener(
-      "pointerdown",
-      function(event) {
+function aktiviereThumbnail(thumbnail) {
 
-        event.preventDefault();
+  thumbnail.addEventListener("pointerdown", function(event) {
 
-        startX = event.clientX;
-        startY = event.clientY;
+    event.preventDefault();
 
-        wurdeGezogen = false;
+    entferneAlleDragKopien();
+
+    aktiverThumbnailDrag = {
+      thumbnail: thumbnail,
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      wurdeGezogen: false,
+      dragKopie: null
+    };
+
+    thumbnail.setPointerCapture(event.pointerId);
+  });
+}
 
 
-        thumbnail.setPointerCapture(
-          event.pointerId
-        );
-      }
+/* Bewegung GLOBAL verfolgen */
+
+document.addEventListener("pointermove", function(event) {
+
+  if (!aktiverThumbnailDrag) return;
+
+  const drag = aktiverThumbnailDrag;
+
+  const dx = event.clientX - drag.startX;
+  const dy = event.clientY - drag.startY;
+
+  const entfernung = Math.sqrt(dx * dx + dy * dy);
+
+
+  /* Erst ab 10 Pixeln wirklich als Ziehen werten */
+
+  if (!drag.wurdeGezogen && entfernung > 10) {
+
+    drag.wurdeGezogen = true;
+
+    drag.dragKopie = document.createElement("img");
+    drag.dragKopie.src = drag.thumbnail.src;
+    drag.dragKopie.className = "drag-kopie";
+
+    document.body.appendChild(drag.dragKopie);
+  }
+
+
+  if (drag.dragKopie) {
+
+    bewegeDragKopie(
+      drag.dragKopie,
+      event.clientX,
+      event.clientY
     );
 
-
-    thumbnail.addEventListener(
-      "pointermove",
-      function(event) {
-
-        const dx =
-          event.clientX - startX;
-
-        const dy =
-          event.clientY - startY;
-
-        const entfernung =
-          Math.sqrt(
-            dx * dx + dy * dy
-          );
-
-
-        /*
-          Erst ab ca. 8 Pixeln Bewegung
-          behandeln wir es als Drag.
-          Sonst bleibt es ein normaler Tap.
-        */
-
-        if (
-          !wurdeGezogen &&
-          entfernung > 8
-        ) {
-
-          wurdeGezogen = true;
-
-
-          thumbnailDragKopie =
-            document.createElement("img");
-
-          thumbnailDragKopie.src =
-            thumbnail.src;
-
-          thumbnailDragKopie.className =
-            "drag-kopie";
-
-          document.body.appendChild(
-            thumbnailDragKopie
-          );
-        }
-
-
-        if (thumbnailDragKopie) {
-
-          event.preventDefault();
-
-
-          bewegeDragKopie(
-            thumbnailDragKopie,
-            event.clientX,
-            event.clientY
-          );
-
-
-          markiereGruppeUnterPunkt(
-            event.clientX,
-            event.clientY
-          );
-        }
-      }
+    markiereGruppeUnterPunkt(
+      event.clientX,
+      event.clientY
     );
+  }
+});
 
 
-    thumbnail.addEventListener(
-      "pointerup",
-      function(event) {
+/* Loslassen GLOBAL erkennen */
 
-        /*
-          DRAG
-        */
+document.addEventListener("pointerup", function(event) {
 
-        if (wurdeGezogen) {
+  if (!aktiverThumbnailDrag) return;
 
-          if (thumbnailDragKopie) {
-
-            thumbnailDragKopie.remove();
-
-            thumbnailDragKopie = null;
-          }
+  const drag = aktiverThumbnailDrag;
 
 
-          entferneGruppenMarkierung();
+  /* FALL 1: Bild wurde gezogen */
+
+  if (drag.wurdeGezogen) {
+
+    entferneAlleDragKopien();
+
+    entferneGruppenMarkierung();
+
+    const neueGruppe =
+      findeGruppeUnterPunkt(
+        event.clientX,
+        event.clientY
+      );
+
+    if (neueGruppe) {
+
+      verschiebeThumbnail(
+        drag.thumbnail,
+        neueGruppe.dataset.gruppe
+      );
+    }
+  }
 
 
-          const neueGruppe =
-            findeGruppeUnterPunkt(
-              event.clientX,
-              event.clientY
-            );
+  /* FALL 2: Nur kurz angeklickt */
 
+  else {
 
-          if (neueGruppe) {
-
-            verschiebeThumbnail(
-              thumbnail,
-              neueGruppe.dataset.gruppe
-            );
-          }
-
-        }
-
-        /*
-          TAP / KLICK
-        */
-
-        else {
-
-          oeffneGrossansicht(
-            thumbnail.src
-          );
-        }
-      }
+    oeffneGrossansicht(
+      drag.thumbnail.src
     );
   }
 
 
+  aktiverThumbnailDrag = null;
+});
+
+
+/* Falls Browser/Tablet die Geste abbricht */
+
+document.addEventListener("pointercancel", function() {
+
+  entferneAlleDragKopien();
+
+  entferneGruppenMarkierung();
+
+  aktiverThumbnailDrag = null;
+});
   /* =====================================================
      GROSSANSICHT
      ===================================================== */
