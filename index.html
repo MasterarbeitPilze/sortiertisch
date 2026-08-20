@@ -11,55 +11,124 @@
       box-sizing: border-box;
     }
 
-    body {
+    html, body {
       margin: 0;
-      padding: 20px;
+      min-height: 100%;
       font-family: Arial, sans-serif;
       background: #f6f8f6;
       color: #222;
-      touch-action: pan-y;
+    }
+
+    body {
+      padding: 12px;
     }
 
     .seite {
-      max-width: 1100px;
+      width: min(1200px, 100%);
       margin: 0 auto;
     }
 
+    /* ---------- Kopf ---------- */
+
+    .kopf {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: start;
+      margin-bottom: 8px;
+    }
+
     h1 {
-      margin-bottom: 5px;
+      margin: 0 0 4px 0;
+      font-size: clamp(22px, 2.4vw, 32px);
+      color: #315f52;
     }
 
     .anweisung {
-      margin-top: 0;
-      margin-bottom: 15px;
+      margin: 0;
+      font-size: clamp(13px, 1.35vw, 17px);
+      line-height: 1.35;
+      max-width: 850px;
     }
 
-    #fortschritt {
+    .hint {
+      font-weight: 600;
+      color: #315f52;
+    }
+
+    #zurueck {
+      padding: 8px 13px;
+      font-size: 14px;
+      border-radius: 8px;
+      border: 1px solid #8a8a8a;
+      background: white;
+      cursor: pointer;
+    }
+
+    #zurueck:disabled {
+      opacity: 0.4;
+      cursor: default;
+    }
+
+    /* ---------- Fortschritt ---------- */
+
+    .fortschritt-bereich {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      align-items: center;
+      gap: 12px;
+      margin: 8px 0 10px 0;
+    }
+
+    #fortschrittText {
       font-weight: bold;
-      margin-bottom: 15px;
+      white-space: nowrap;
+      font-size: 14px;
     }
 
-    /* Bereich für das aktuell zu sortierende Bild */
+    .fortschritt-rahmen {
+      width: 100%;
+      height: 10px;
+      background: #dfe7df;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    #fortschrittBalken {
+      height: 100%;
+      width: 0%;
+      background: #76978c;
+      border-radius: 999px;
+      transition: width 0.25s ease;
+    }
+
+    /* ---------- aktuelles großes Bild ---------- */
+
     .aktuelles-bild-bereich {
-      min-height: 300px;
+      height: clamp(190px, 29vh, 310px);
       display: flex;
       justify-content: center;
       align-items: center;
-      margin-bottom: 20px;
+      margin-bottom: 10px;
     }
 
     #aktuellesBild {
-      max-width: 420px;
-      max-height: 280px;
+      display: block;
+      max-width: min(560px, 88vw);
+      max-height: 100%;
       width: auto;
       height: auto;
       object-fit: contain;
       border-radius: 10px;
-      box-shadow: 0 3px 12px rgba(0,0,0,0.18);
+      box-shadow: 0 3px 12px rgba(0,0,0,0.20);
       background: white;
       cursor: grab;
+
       user-select: none;
+      -webkit-user-select: none;
       -webkit-user-drag: none;
+
+      /* wichtig für Touch-Drag */
       touch-action: none;
     }
 
@@ -67,132 +136,238 @@
       cursor: grabbing;
     }
 
-    /* Gruppen */
+    /* ---------- Gruppen ---------- */
+
     .gruppen {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 14px;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-rows: repeat(2, minmax(112px, auto));
+      gap: 8px;
     }
 
     .gruppe {
-      min-height: 190px;
+      min-width: 0;
+      min-height: 112px;
       background: #eef5ec;
       border: 2px solid #76978c;
-      border-radius: 10px;
-      padding: 10px;
-      transition: 0.15s;
+      border-radius: 9px;
+      padding: 7px;
+      transition:
+        outline 0.1s ease,
+        transform 0.1s ease,
+        background 0.1s ease;
     }
 
     .gruppe.hover {
       outline: 4px solid #315f52;
+      outline-offset: 1px;
       transform: scale(1.01);
+      background: #e3eee0;
     }
 
     .gruppe h2 {
-      margin: 0 0 8px 0;
-      font-size: 19px;
+      margin: 0 0 6px 0;
+      font-size: clamp(14px, 1.4vw, 18px);
       color: #315f52;
     }
 
     .thumbnails {
       display: flex;
       flex-wrap: wrap;
-      gap: 6px;
+      align-content: flex-start;
+      gap: 5px;
     }
 
     .thumbnail {
-      width: 72px;
-      height: 72px;
+      width: clamp(48px, 5.3vw, 68px);
+      height: clamp(48px, 5.3vw, 68px);
       object-fit: cover;
-      border-radius: 6px;
+      border-radius: 5px;
       border: 1px solid #aaa;
       background: white;
+      cursor: grab;
+
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-user-drag: none;
+      touch-action: none;
     }
 
-    .buttons {
-      margin-top: 18px;
-      display: flex;
-      gap: 10px;
+    .thumbnail:active {
+      cursor: grabbing;
     }
 
-    button {
-      padding: 10px 16px;
-      font-size: 16px;
-      border-radius: 8px;
-      border: 1px solid #777;
-      background: white;
-      cursor: pointer;
-    }
-
-    button:disabled {
-      opacity: 0.4;
-      cursor: default;
-    }
+    /* ---------- Abschluss ---------- */
 
     #fertig {
-      text-align: center;
-      font-size: 24px;
-      font-weight: bold;
-      margin: 40px 0;
       display: none;
+      text-align: center;
+      padding: 8px 10px;
+      margin: 6px 0 10px 0;
+      border-radius: 8px;
+      background: #eef5ec;
+      color: #315f52;
+      font-weight: bold;
     }
 
-    /* Das Bild, das während des Ziehens dem Finger folgt */
+    /* ---------- Drag-Geisterbild ---------- */
+
     .drag-kopie {
       position: fixed;
       z-index: 9999;
       pointer-events: none;
-      max-width: 220px;
-      max-height: 180px;
+      max-width: 190px;
+      max-height: 150px;
+      width: auto;
+      height: auto;
       object-fit: contain;
-      opacity: 0.9;
+      opacity: 0.88;
       transform: translate(-50%, -50%);
-      box-shadow: 0 5px 20px rgba(0,0,0,0.3);
       border-radius: 8px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.30);
     }
 
-    @media (max-width: 800px) {
+    /* ---------- Großansicht ---------- */
+
+    #overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 10000;
+      background: rgba(0,0,0,0.72);
+
+      justify-content: center;
+      align-items: center;
+
+      padding: 30px;
+    }
+
+    #overlay.offen {
+      display: flex;
+    }
+
+    .overlay-inhalt {
+      position: relative;
+      max-width: 90vw;
+      max-height: 90vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #overlayBild {
+      max-width: 88vw;
+      max-height: 86vh;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 5px 25px rgba(0,0,0,0.4);
+    }
+
+    #overlaySchliessen {
+      position: absolute;
+      right: -16px;
+      top: -16px;
+
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: none;
+
+      background: white;
+      color: #333;
+      font-size: 25px;
+      line-height: 38px;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    }
+
+    /* ---------- Smartphones ---------- */
+
+    @media (max-width: 650px) {
       body {
-        padding: 10px;
+        padding: 8px;
+      }
+
+      .kopf {
+        grid-template-columns: 1fr;
+      }
+
+      #zurueck {
+        justify-self: start;
       }
 
       .gruppen {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
-      #aktuellesBild {
-        max-width: 90vw;
-        max-height: 260px;
+      .aktuelles-bild-bereich {
+        height: 240px;
       }
 
       .thumbnail {
-        width: 60px;
-        height: 60px;
+        width: 58px;
+        height: 58px;
       }
     }
   </style>
 </head>
 
+
 <body>
 
 <div class="seite">
 
-  <h1>Pilze sortieren</h1>
+  <div class="kopf">
 
-  <p class="anweisung">
-    Schau dir das Pilzbild genau an und ziehe es in die Gruppe,
-    zu der es deiner Meinung nach gehört.
-  </p>
+    <div>
+      <h1>Pilze sortieren</h1>
 
-  <div id="fortschritt"></div>
+      <p class="anweisung">
+        Schaut euch jedes Pilzbild genau an und sortiert ähnliche Pilze
+        in acht Gruppen.
+        <span class="hint">
+          Ihr könnt eure Zuordnung jederzeit verändern.
+        </span>
+      </p>
+    </div>
+
+    <button id="zurueck" disabled>
+      ↶ Rückgängig
+    </button>
+
+  </div>
+
+
+  <div class="fortschritt-bereich">
+
+    <div id="fortschrittText">
+      Bild 1 von 40
+    </div>
+
+    <div class="fortschritt-rahmen">
+      <div id="fortschrittBalken"></div>
+    </div>
+
+  </div>
+
 
   <div class="aktuelles-bild-bereich">
-    <img id="aktuellesBild" alt="Pilzbild zum Sortieren">
+    <img
+      id="aktuellesBild"
+      alt="Pilzbild zum Sortieren"
+    >
   </div>
 
+
   <div id="fertig">
-    Fertig! 🎉 Schau dir eure Gruppen noch einmal genau an.
+    Fertig! 🎉
+    Schaut euch eure Gruppen noch einmal genau an.
+    Ihr könnt die Zuordnung weiterhin verändern.
   </div>
+
 
   <div class="gruppen">
 
@@ -211,184 +386,777 @@
       <div class="thumbnails"></div>
     </div>
 
-  </div>
+    <div class="gruppe" data-gruppe="4">
+      <h2>Gruppe 4</h2>
+      <div class="thumbnails"></div>
+    </div>
 
-  <div class="buttons">
-    <button id="zurueck" disabled>↶ Rückgängig</button>
+    <div class="gruppe" data-gruppe="5">
+      <h2>Gruppe 5</h2>
+      <div class="thumbnails"></div>
+    </div>
+
+    <div class="gruppe" data-gruppe="6">
+      <h2>Gruppe 6</h2>
+      <div class="thumbnails"></div>
+    </div>
+
+    <div class="gruppe" data-gruppe="7">
+      <h2>Gruppe 7</h2>
+      <div class="thumbnails"></div>
+    </div>
+
+    <div class="gruppe" data-gruppe="8">
+      <h2>Gruppe 8</h2>
+      <div class="thumbnails"></div>
+    </div>
+
   </div>
 
 </div>
 
+
+<!-- Großansicht -->
+
+<div id="overlay">
+
+  <div class="overlay-inhalt">
+
+    <img
+      id="overlayBild"
+      alt="Pilzbild in Großansicht"
+    >
+
+    <button
+      id="overlaySchliessen"
+      aria-label="Großansicht schließen"
+    >
+      ×
+    </button>
+
+  </div>
+
+</div>
+
+
+
 <script>
 
-  /* Deine bereits auf GitHub liegenden Testbilder */
+  /* =====================================================
+     FESTE, DIDAKTISCH GEMISCHTE REIHENFOLGE
+     ===================================================== */
+
   const bilder = [
-    "/pilzbilder/1.jpg",
-    "/pilzbilder/14.jpg",
-    "/pilzbilder/20.jpg",
-    "/pilzbilder/27.jpg",
-    "/pilzbilder/37.jpg"
+
+    /* Erste 8: je ein bewusst gewählter Referenzvertreter */
+
+    "6.jpg",       // Steinpilz
+    "3.jpg",       // Fliegenpilz
+    "14.jpg",      // Bischofsmütze
+    "30.jpg",      // Herbsttrompete
+    "5.JPG",       // Krause Glucke
+    "13.jpg",      // Parasol
+    "39.jpg",      // Pfifferling
+    "7.jpg",       // Speisemorchel
+
+    /* Danach bewusst gemischt */
+
+    "1.jpg",       // Bischofsmütze
+    "19.jpg",      // Pfifferling
+    "8.jpg",       // Steinpilz
+    "10.jpg",      // Krause Glucke
+    "9.jpg",       // Fliegenpilz
+    "15.jpg",      // Speisemorchel
+    "4.jpg",       // Herbsttrompete
+    "11.jpg",      // Parasol
+
+    "23.jpg",      // Speisemorchel
+    "12.jpg",      // Herbsttrompete
+    "17.jpg",      // Parasol
+    "21.jpg",      // Fliegenpilz
+    "20.jpg",      // Bischofsmütze
+    "16.jpg",      // Steinpilz
+    "26.jpg",      // Pfifferling
+    "22.jpeg",     // Krause Glucke
+
+    "31.jpg",      // Fliegenpilz
+    "18.jpg",      // Steinpilz
+    "34.jpg",      // Krause Glucke
+    "32.jpg",      // Pfifferling
+    "24.jpg",      // Parasol
+    "27.jpg",      // Bischofsmütze
+    "25.jpg",      // Herbsttrompete
+    "29.jpg",      // Speisemorchel
+
+    "38.webp",     // Fliegenpilz
+    "28.jpg",      // Steinpilz
+    "33.jpg",      // Herbsttrompete
+    "35.webp",     // Parasol
+    "36.jpg",      // Speisemorchel
+    "40.jpg",      // Krause Glucke
+    "37.jpg",      // Bischofsmütze
+    "2.jpg"        // Pfifferling
   ];
 
+
+  /* =====================================================
+     GRUNDZUSTAND
+     ===================================================== */
+
   let aktuellerIndex = 0;
+
+  /*
+    Verlauf enthält:
+    {
+      typ: "platzieren" oder "verschieben",
+      element: Thumbnail,
+      von: Gruppen-Nummer oder null,
+      nach: Gruppen-Nummer,
+      bildIndex: Index im bilder-Array
+    }
+  */
   let verlauf = [];
 
-  const bild = document.getElementById("aktuellesBild");
-  const fortschritt = document.getElementById("fortschritt");
-  const fertig = document.getElementById("fertig");
-  const zurueck = document.getElementById("zurueck");
-  const gruppen = document.querySelectorAll(".gruppe");
+
+  const aktuellesBild =
+    document.getElementById("aktuellesBild");
+
+  const fortschrittText =
+    document.getElementById("fortschrittText");
+
+  const fortschrittBalken =
+    document.getElementById("fortschrittBalken");
+
+  const fertig =
+    document.getElementById("fertig");
+
+  const zurueck =
+    document.getElementById("zurueck");
+
+  const gruppen =
+    document.querySelectorAll(".gruppe");
+
+  const overlay =
+    document.getElementById("overlay");
+
+  const overlayBild =
+    document.getElementById("overlayBild");
+
+  const overlaySchliessen =
+    document.getElementById("overlaySchliessen");
+
+
+  /* =====================================================
+     AKTUELLES BILD ANZEIGEN
+     ===================================================== */
 
   function zeigeAktuellesBild() {
 
     if (aktuellerIndex >= bilder.length) {
 
-      bild.style.display = "none";
-      fortschritt.textContent = `${bilder.length} von ${bilder.length} Bildern sortiert`;
+      aktuellesBild.style.display = "none";
+
       fertig.style.display = "block";
+
+      fortschrittText.textContent =
+        `${bilder.length} von ${bilder.length} Bildern sortiert`;
+
+      fortschrittBalken.style.width = "100%";
 
       return;
     }
 
-    bild.style.display = "block";
+
+    aktuellesBild.style.display = "block";
     fertig.style.display = "none";
 
-    bild.src = bilder[aktuellerIndex];
+    aktuellesBild.src = bilder[aktuellerIndex];
 
-    fortschritt.textContent =
+    fortschrittText.textContent =
       `Bild ${aktuellerIndex + 1} von ${bilder.length}`;
+
+    const prozent =
+      (aktuellerIndex / bilder.length) * 100;
+
+    fortschrittBalken.style.width =
+      `${prozent}%`;
   }
 
 
-  function sortiereInGruppe(gruppenNummer) {
+  /* =====================================================
+     NEUES BILD EINER GRUPPE ZUORDNEN
+     ===================================================== */
 
-    if (aktuellerIndex >= bilder.length) return;
+  function sortiereAktuellesBild(gruppenNummer) {
 
-    const bildUrl = bilder[aktuellerIndex];
+    if (aktuellerIndex >= bilder.length) {
+      return;
+    }
 
-    const ziel = document.querySelector(
-      `.gruppe[data-gruppe="${gruppenNummer}"] .thumbnails`
-    );
 
-    const thumbnail = document.createElement("img");
+    const bildIndex = aktuellerIndex;
+
+    const bildUrl = bilder[bildIndex];
+
+    const zielContainer =
+      document.querySelector(
+        `.gruppe[data-gruppe="${gruppenNummer}"] .thumbnails`
+      );
+
+
+    const thumbnail =
+      document.createElement("img");
 
     thumbnail.src = bildUrl;
-    thumbnail.className = "thumbnail";
-    thumbnail.dataset.index = aktuellerIndex;
 
-    ziel.appendChild(thumbnail);
+    thumbnail.className = "thumbnail";
+
+    thumbnail.dataset.bildIndex =
+      bildIndex;
+
+    thumbnail.dataset.gruppe =
+      gruppenNummer;
+
+
+    aktiviereThumbnail(thumbnail);
+
+    zielContainer.appendChild(thumbnail);
+
 
     verlauf.push({
-      index: aktuellerIndex,
-      gruppe: gruppenNummer,
-      element: thumbnail
+
+      typ: "platzieren",
+
+      element: thumbnail,
+
+      von: null,
+
+      nach: gruppenNummer,
+
+      bildIndex: bildIndex
+
     });
+
 
     aktuellerIndex++;
 
-    zurueck.disabled = false;
+    aktualisiereRueckgaengig();
 
     zeigeAktuellesBild();
   }
 
 
-  /* -----------------------------
-     TOUCH + MAUS DRAG & DROP
-     ----------------------------- */
+  /* =====================================================
+     THUMBNAIL IN ANDERE GRUPPE VERSCHIEBEN
+     ===================================================== */
 
-  let dragKopie = null;
+  function verschiebeThumbnail(
+    thumbnail,
+    neueGruppe
+  ) {
 
-  bild.addEventListener("pointerdown", function(event) {
-
-    if (aktuellerIndex >= bilder.length) return;
-
-    event.preventDefault();
-
-    bild.setPointerCapture(event.pointerId);
-
-    dragKopie = document.createElement("img");
-    dragKopie.src = bild.src;
-    dragKopie.className = "drag-kopie";
-
-    document.body.appendChild(dragKopie);
-
-    bewegeDragBild(event.clientX, event.clientY);
-  });
+    const alteGruppe =
+      thumbnail.dataset.gruppe;
 
 
-  bild.addEventListener("pointermove", function(event) {
-
-    if (!dragKopie) return;
-
-    event.preventDefault();
-
-    bewegeDragBild(event.clientX, event.clientY);
-
-    gruppen.forEach(gruppe => gruppe.classList.remove("hover"));
-
-    const elementDarunter =
-      document.elementFromPoint(event.clientX, event.clientY);
-
-    const gruppeDarunter =
-      elementDarunter?.closest(".gruppe");
-
-    if (gruppeDarunter) {
-      gruppeDarunter.classList.add("hover");
+    if (alteGruppe === neueGruppe) {
+      return;
     }
-  });
 
 
-  bild.addEventListener("pointerup", function(event) {
-
-    if (!dragKopie) return;
-
-    event.preventDefault();
-
-    dragKopie.remove();
-    dragKopie = null;
-
-    gruppen.forEach(gruppe => gruppe.classList.remove("hover"));
-
-    const elementDarunter =
-      document.elementFromPoint(event.clientX, event.clientY);
-
-    const gruppeDarunter =
-      elementDarunter?.closest(".gruppe");
-
-    if (gruppeDarunter) {
-      sortiereInGruppe(gruppeDarunter.dataset.gruppe);
-    }
-  });
+    const zielContainer =
+      document.querySelector(
+        `.gruppe[data-gruppe="${neueGruppe}"] .thumbnails`
+      );
 
 
-  function bewegeDragBild(x, y) {
+    verlauf.push({
 
-    if (!dragKopie) return;
+      typ: "verschieben",
 
-    dragKopie.style.left = `${x}px`;
-    dragKopie.style.top = `${y}px`;
+      element: thumbnail,
+
+      von: alteGruppe,
+
+      nach: neueGruppe,
+
+      bildIndex:
+        Number(thumbnail.dataset.bildIndex)
+
+    });
+
+
+    thumbnail.dataset.gruppe =
+      neueGruppe;
+
+    zielContainer.appendChild(thumbnail);
+
+    aktualisiereRueckgaengig();
   }
 
 
-  /* Rückgängig */
+  /* =====================================================
+     DRAG & DROP DES AKTUELLEN GROSSEN BILDES
+     ===================================================== */
 
-  zurueck.addEventListener("click", function() {
+  let grosseDragKopie = null;
 
-    if (verlauf.length === 0) return;
 
-    const letzteAktion = verlauf.pop();
+  aktuellesBild.addEventListener(
+    "pointerdown",
+    function(event) {
 
-    letzteAktion.element.remove();
+      if (aktuellerIndex >= bilder.length) {
+        return;
+      }
 
-    aktuellerIndex = letzteAktion.index;
+      event.preventDefault();
 
-    zeigeAktuellesBild();
+      aktuellesBild.setPointerCapture(
+        event.pointerId
+      );
 
-    if (verlauf.length === 0) {
-      zurueck.disabled = true;
+
+      grosseDragKopie =
+        document.createElement("img");
+
+      grosseDragKopie.src =
+        aktuellesBild.src;
+
+      grosseDragKopie.className =
+        "drag-kopie";
+
+      document.body.appendChild(
+        grosseDragKopie
+      );
+
+
+      bewegeDragKopie(
+        grosseDragKopie,
+        event.clientX,
+        event.clientY
+      );
     }
-  });
+  );
 
+
+  aktuellesBild.addEventListener(
+    "pointermove",
+    function(event) {
+
+      if (!grosseDragKopie) {
+        return;
+      }
+
+      event.preventDefault();
+
+
+      bewegeDragKopie(
+        grosseDragKopie,
+        event.clientX,
+        event.clientY
+      );
+
+
+      markiereGruppeUnterPunkt(
+        event.clientX,
+        event.clientY
+      );
+    }
+  );
+
+
+  aktuellesBild.addEventListener(
+    "pointerup",
+    function(event) {
+
+      if (!grosseDragKopie) {
+        return;
+      }
+
+      event.preventDefault();
+
+
+      grosseDragKopie.remove();
+
+      grosseDragKopie = null;
+
+
+      entferneGruppenMarkierung();
+
+
+      const gruppe =
+        findeGruppeUnterPunkt(
+          event.clientX,
+          event.clientY
+        );
+
+
+      if (gruppe) {
+
+        sortiereAktuellesBild(
+          gruppe.dataset.gruppe
+        );
+      }
+    }
+  );
+
+
+  /* =====================================================
+     THUMBNAILS:
+     TAP = GROSSANSICHT
+     DRAG = UMSORTIEREN
+     ===================================================== */
+
+  function aktiviereThumbnail(thumbnail) {
+
+    let startX = 0;
+    let startY = 0;
+
+    let thumbnailDragKopie = null;
+
+    let wurdeGezogen = false;
+
+
+    thumbnail.addEventListener(
+      "pointerdown",
+      function(event) {
+
+        event.preventDefault();
+
+        startX = event.clientX;
+        startY = event.clientY;
+
+        wurdeGezogen = false;
+
+
+        thumbnail.setPointerCapture(
+          event.pointerId
+        );
+      }
+    );
+
+
+    thumbnail.addEventListener(
+      "pointermove",
+      function(event) {
+
+        const dx =
+          event.clientX - startX;
+
+        const dy =
+          event.clientY - startY;
+
+        const entfernung =
+          Math.sqrt(
+            dx * dx + dy * dy
+          );
+
+
+        /*
+          Erst ab ca. 8 Pixeln Bewegung
+          behandeln wir es als Drag.
+          Sonst bleibt es ein normaler Tap.
+        */
+
+        if (
+          !wurdeGezogen &&
+          entfernung > 8
+        ) {
+
+          wurdeGezogen = true;
+
+
+          thumbnailDragKopie =
+            document.createElement("img");
+
+          thumbnailDragKopie.src =
+            thumbnail.src;
+
+          thumbnailDragKopie.className =
+            "drag-kopie";
+
+          document.body.appendChild(
+            thumbnailDragKopie
+          );
+        }
+
+
+        if (thumbnailDragKopie) {
+
+          event.preventDefault();
+
+
+          bewegeDragKopie(
+            thumbnailDragKopie,
+            event.clientX,
+            event.clientY
+          );
+
+
+          markiereGruppeUnterPunkt(
+            event.clientX,
+            event.clientY
+          );
+        }
+      }
+    );
+
+
+    thumbnail.addEventListener(
+      "pointerup",
+      function(event) {
+
+        /*
+          DRAG
+        */
+
+        if (wurdeGezogen) {
+
+          if (thumbnailDragKopie) {
+
+            thumbnailDragKopie.remove();
+
+            thumbnailDragKopie = null;
+          }
+
+
+          entferneGruppenMarkierung();
+
+
+          const neueGruppe =
+            findeGruppeUnterPunkt(
+              event.clientX,
+              event.clientY
+            );
+
+
+          if (neueGruppe) {
+
+            verschiebeThumbnail(
+              thumbnail,
+              neueGruppe.dataset.gruppe
+            );
+          }
+
+        }
+
+        /*
+          TAP / KLICK
+        */
+
+        else {
+
+          oeffneGrossansicht(
+            thumbnail.src
+          );
+        }
+      }
+    );
+  }
+
+
+  /* =====================================================
+     GROSSANSICHT
+     ===================================================== */
+
+  function oeffneGrossansicht(src) {
+
+    overlayBild.src = src;
+
+    overlay.classList.add("offen");
+  }
+
+
+  function schliesseGrossansicht() {
+
+    overlay.classList.remove("offen");
+
+    overlayBild.src = "";
+  }
+
+
+  overlaySchliessen.addEventListener(
+    "click",
+    function(event) {
+
+      event.stopPropagation();
+
+      schliesseGrossansicht();
+    }
+  );
+
+
+  overlay.addEventListener(
+    "click",
+    function(event) {
+
+      /*
+        Klick auf den dunklen Hintergrund
+        schließt das Overlay.
+      */
+
+      if (event.target === overlay) {
+
+        schliesseGrossansicht();
+      }
+    }
+  );
+
+
+  /* =====================================================
+     RÜCKGÄNGIG
+     ===================================================== */
+
+  zurueck.addEventListener(
+    "click",
+    function() {
+
+      if (verlauf.length === 0) {
+        return;
+      }
+
+
+      const letzteAktion =
+        verlauf.pop();
+
+
+      /*
+        Letztes neu zugeordnetes Bild
+        wieder zurück in den Stapel.
+      */
+
+      if (
+        letzteAktion.typ ===
+        "platzieren"
+      ) {
+
+        letzteAktion.element.remove();
+
+        aktuellerIndex =
+          letzteAktion.bildIndex;
+
+        zeigeAktuellesBild();
+      }
+
+
+      /*
+        Letzte Umsortierung
+        rückgängig machen.
+      */
+
+      else if (
+        letzteAktion.typ ===
+        "verschieben"
+      ) {
+
+        const alterContainer =
+          document.querySelector(
+            `.gruppe[data-gruppe="${letzteAktion.von}"] .thumbnails`
+          );
+
+
+        letzteAktion.element.dataset.gruppe =
+          letzteAktion.von;
+
+
+        alterContainer.appendChild(
+          letzteAktion.element
+        );
+      }
+
+
+      aktualisiereRueckgaengig();
+    }
+  );
+
+
+  function aktualisiereRueckgaengig() {
+
+    zurueck.disabled =
+      verlauf.length === 0;
+  }
+
+
+  /* =====================================================
+     HILFSFUNKTIONEN FÜR DRAG & DROP
+     ===================================================== */
+
+  function bewegeDragKopie(
+    element,
+    x,
+    y
+  ) {
+
+    element.style.left =
+      `${x}px`;
+
+    element.style.top =
+      `${y}px`;
+  }
+
+
+  function findeGruppeUnterPunkt(
+    x,
+    y
+  ) {
+
+    /*
+      Das Geisterbild hat pointer-events:none,
+      deshalb können wir hier einfach schauen,
+      welches echte Element unter dem Finger liegt.
+    */
+
+    const element =
+      document.elementFromPoint(
+        x,
+        y
+      );
+
+
+    return element
+      ?.closest(".gruppe");
+  }
+
+
+  function markiereGruppeUnterPunkt(
+    x,
+    y
+  ) {
+
+    entferneGruppenMarkierung();
+
+
+    const gruppe =
+      findeGruppeUnterPunkt(
+        x,
+        y
+      );
+
+
+    if (gruppe) {
+
+      gruppe.classList.add(
+        "hover"
+      );
+    }
+  }
+
+
+  function entferneGruppenMarkierung() {
+
+    gruppen.forEach(
+      gruppe =>
+        gruppe.classList.remove(
+          "hover"
+        )
+    );
+  }
+
+
+  /* =====================================================
+     START
+     ===================================================== */
 
   zeigeAktuellesBild();
 
